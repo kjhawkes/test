@@ -2,7 +2,6 @@
 - name: Update and upgrade all packages on Ubuntu hosts
   hosts: all
   become: true  # This is crucial for running tasks with root privileges (sudo)
-  become_user: kjhawkes
   tasks:
     - name: Update apt package cache
       ansible.builtin.apt:

@@ -1,7 +1,8 @@
 ---
-- hosts: my_servers
-  become: true
+- name: Test
+  hosts: testlab
+  gather_facts: no
   tasks:
-    - name: Print OS info
-      ansible.builtin.package:
-        name: apache2
+    - name: Ping host
+      ansible.builtin.ping:
+        

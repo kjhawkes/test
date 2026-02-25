@@ -1,13 +1,29 @@
----
-- name: Update and upgrade all packages on Ubuntu hosts
-  hosts: all
-  become: true  # This is crucial for running tasks with root privileges (sudo)
-  tasks:
-    - name: Update apt package cache
-      ansible.builtin.apt:
-        update_cache: yes
-        cache_valid_time: 3600 # Update cache if it's older than 1 hour
+- hosts: all
 
-    - name: Upgrade all installed packages
-      ansible.builtin.apt:
-        upgrade: dist # or 'full' for a more aggressive upgrade
+  become: yes
+  tasks:
+    # Upgrade packages
+    - name: upgrade apt packages
+      become: true
+      apt:
+        upgrade: yes
+        update_cache: yes
+
+    # Check if reboot is required
+    - name: check if system reboot is required
+      become: true
+      stat:
+        path: /var/run/reboot-required
+      register: reboot_required
+
+    # Send Discord message when reboot is required
+    - name: Send Discord message
+      uri:
+        url: "{{ discord_webhook_url }}"
+        method: POST
+        body_format: json
+        body: '{"content": "Reboot required on {{ inventory_hostname }}"}'
+        headers:
+          Content-Type: application/json
+        status_code: 204
+      when: reboot_required.stat.exists
